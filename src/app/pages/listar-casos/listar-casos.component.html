@@ -1,0 +1,24 @@
+<div class="casos-container">
+  <div class="casos-header">
+    <h1>Gestión de Casos</h1>
+    <p class="subtitulo">Listado completo de casos registrados en el sistema</p>
+  </div>
+  <div class="loading" *ngIf="cargando"><div class="spinner"></div><p>Cargando casos...</p></div>
+  <div class="error-box" *ngIf="error && !cargando"><p>?? No se pudieron cargar los casos.</p><button (click)="cargarCasos()">Reintentar</button></div>
+  <div class="empty" *ngIf="!cargando && !error && casos.length === 0"><p>No hay casos registrados.</p></div>
+  <div class="tabla-wrapper" *ngIf="!cargando && !error && casos.length > 0">
+    <table class="tabla-casos">
+      <thead><tr><th>#</th><th>Titulo</th><th>Descripcion</th><th>Estado</th><th>Prioridad</th><th>Fecha</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let caso of casos">
+          <td>{{caso.id}}</td>
+          <td>{{caso.titulo}}</td>
+          <td>{{caso.descripcion}}</td>
+          <td><span class="badge" [ngClass]="getEstadoClase(caso.estado)">{{caso.estado}}</span></td>
+          <td><span class="badge" [ngClass]="getPrioridadClase(caso.prioridad)">{{caso.prioridad}}</span></td>
+          <td>{{caso.fechaCreacion | date:"dd/MM/yyyy"}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
