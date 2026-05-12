@@ -22,7 +22,7 @@ export class RegistrarAbogadoComponent {
   constructor(private http: HttpClient) {}
 
   registrar() {
-    this.http.post('http://localhost:8860/abogados', this.abogado)
+    this.http.post('http://localhost:8860/kkom/abogados', this.abogado)
       .subscribe({
         next: () => alert('Abogado registrado exitosamente'),
         error: (err) => alert('Error: ' + err.message)
