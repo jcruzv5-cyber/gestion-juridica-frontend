@@ -1,0 +1,365 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>Registro de clientes</h1>
+      <p>HU002 - Registrar cliente</p>
+    </div>
+  </div>
+
+  <div *ngIf="mensajeExito" class="mensaje-wrapper">
+    <p-message severity="success" [text]="mensajeExito"></p-message>
+  </div>
+
+  <div *ngIf="mensajeError" class="mensaje-wrapper">
+    <p-message severity="error" [text]="mensajeError"></p-message>
+  </div>
+
+  <form #formulario="ngForm" (ngSubmit)="guardarCliente(formulario)" novalidate class="form-layout">
+    <section class="section-box">
+      <div class="section-title">Datos personales</div>
+
+      <div class="grid-form">
+        <div class="campo">
+          <label for="tipoDocumento">Tipo de documento *</label>
+          <p-select
+            inputId="tipoDocumento"
+            name="tipoDocumento"
+            [options]="tipoDocumentoOptions"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="cliente.tipoDocumento"
+            #tipoDocumento="ngModel"
+            placeholder="Seleccione"
+            [class.ng-invalid]="campoInvalido(tipoDocumento)"
+            required>
+          </p-select>
+          <small class="mensaje-campo" *ngIf="campoInvalido(tipoDocumento)">
+            Debes seleccionar un tipo de documento.
+          </small>
+        </div>
+
+        <div class="campo">
+          <label for="numeroDocumento">Número de documento *</label>
+          <input
+            pInputText
+            id="numeroDocumento"
+            name="numeroDocumento"
+            [(ngModel)]="cliente.numeroDocumento"
+            #numeroDocumento="ngModel"
+            required
+            minlength="6"
+            maxlength="15"
+            pattern="^[0-9]+$"
+            [class.ng-invalid]="campoInvalido(numeroDocumento)" />
+          <small class="mensaje-campo" *ngIf="campoInvalido(numeroDocumento)">
+            Campo obligatorio y solo numérico.
+          </small>
+        </div>
+
+        <div class="campo">
+          <label for="nombres">Nombres *</label>
+          <input
+            pInputText
+            id="nombres"
+            name="nombres"
+            [(ngModel)]="cliente.nombres"
+            #nombres="ngModel"
+            required
+            minlength="2"
+            [class.ng-invalid]="campoInvalido(nombres)" />
+          <small class="mensaje-campo" *ngIf="campoInvalido(nombres)">
+            Los nombres son obligatorios.
+          </small>
+        </div>
+
+        <div class="campo">
+          <label for="apellidos">Apellidos *</label>
+          <input
+            pInputText
+            id="apellidos"
+            name="apellidos"
+            [(ngModel)]="cliente.apellidos"
+            #apellidos="ngModel"
+            required
+            minlength="2"
+            [class.ng-invalid]="campoInvalido(apellidos)" />
+          <small class="mensaje-campo" *ngIf="campoInvalido(apellidos)">
+            Los apellidos son obligatorios.
+          </small>
+        </div>
+
+        <div class="campo">
+          <label for="fechaNacimiento">Fecha de nacimiento *</label>
+          <input
+            pInputText
+            type="date"
+            id="fechaNacimiento"
+            name="fechaNacimiento"
+            [(ngModel)]="cliente.fechaNacimiento"
+            #fechaNacimiento="ngModel"
+            required
+            [class.ng-invalid]="campoInvalido(fechaNacimiento)" />
+          <small class="mensaje-campo" *ngIf="campoInvalido(fechaNacimiento)">
+            Debes seleccionar la fecha.
+          </small>
+        </div>
+
+        <div class="campo">
+          <label for="genero">Género *</label>
+          <p-select
+            inputId="genero"
+            name="genero"
+            [options]="generoOptions"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="cliente.genero"
+            #genero="ngModel"
+            placeholder="Seleccione"
+            [class.ng-invalid]="campoInvalido(genero)"
+            required>
+          </p-select>
+          <small class="mensaje-campo" *ngIf="campoInvalido(genero)">
+            Debes seleccionar el género.
+          </small>
+        </div>
+
+        <div class="campo full-width">
+          <label for="estadoCivil">Estado civil *</label>
+          <p-select
+            inputId="estadoCivil"
+            name="estadoCivil"
+            [options]="estadoCivilOptions"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="cliente.estadoCivil"
+            #estadoCivil="ngModel"
+            placeholder="Seleccione"
+            [class.ng-invalid]="campoInvalido(estadoCivil)"
+            required>
+          </p-select>
+          <small class="mensaje-campo" *ngIf="campoInvalido(estadoCivil)">
+            Debes seleccionar el estado civil.
+          </small>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-box">
+      <div class="section-title">Ubicación y contacto</div>
+
+      <div class="grid-form">
+        <div class="campo full-width">
+          <label for="direccionResidencia">Dirección de residencia *</label>
+          <input
+            pInputText
+            id="direccionResidencia"
+            name="direccionResidencia"
+            [(ngModel)]="cliente.direccionResidencia"
+            #direccionResidencia="ngModel"
+            required
+            [class.ng-invalid]="campoInvalido(direccionResidencia)" />
+          <small class="mensaje-campo" *ngIf="campoInvalido(direccionResidencia)">
+            La dirección es obligatoria.
+          </small>
+        </div>
+
+        <div class="campo">
+          <label for="ciudadMunicipio">Ciudad o municipio *</label>
+          <input
+            pInputText
+            id="ciudadMunicipio"
+            name="ciudadMunicipio"
+            [(ngModel)]="cliente.ciudadMunicipio"
+            #ciudadMunicipio="ngModel"
+            required
+            [class.ng-invalid]="campoInvalido(ciudadMunicipio)" />
+          <small class="mensaje-campo" *ngIf="campoInvalido(ciudadMunicipio)">
+            La ciudad o municipio es obligatoria.
+          </small>
+        </div>
+
+        <div class="campo">
+          <label for="barrio">Barrio</label>
+          <input
+            pInputText
+            id="barrio"
+            name="barrio"
+            [(ngModel)]="cliente.barrio" />
+        </div>
+
+        <div class="campo">
+          <label for="telefonoPrincipal">Teléfono principal *</label>
+          <input
+            pInputText
+            id="telefonoPrincipal"
+            name="telefonoPrincipal"
+            [(ngModel)]="cliente.telefonoPrincipal"
+            #telefonoPrincipal="ngModel"
+            required
+            minlength="7"
+            maxlength="15"
+            pattern="^[0-9]+$"
+            [class.ng-invalid]="campoInvalido(telefonoPrincipal)" />
+          <small class="mensaje-campo" *ngIf="campoInvalido(telefonoPrincipal)">
+            El teléfono principal es obligatorio.
+          </small>
+        </div>
+
+        <div class="campo">
+          <label for="telefonoSecundario">Teléfono secundario</label>
+          <input
+            pInputText
+            id="telefonoSecundario"
+            name="telefonoSecundario"
+            [(ngModel)]="cliente.telefonoSecundario" />
+        </div>
+
+        <div class="campo full-width">
+          <label for="correoElectronico">Correo electrónico *</label>
+          <input
+            pInputText
+            id="correoElectronico"
+            name="correoElectronico"
+            [(ngModel)]="cliente.correoElectronico"
+            #correoElectronico="ngModel"
+            required
+            email
+            [class.ng-invalid]="campoInvalido(correoElectronico)" />
+          <small class="mensaje-campo" *ngIf="campoInvalido(correoElectronico)">
+            El correo es obligatorio y debe ser válido.
+          </small>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-box">
+      <div class="section-title">Información socioeconómica</div>
+
+      <div class="grid-form">
+        <div class="campo">
+          <label for="estratoSocioeconomico">Estrato socioeconómico *</label>
+          <input
+            pInputText
+            id="estratoSocioeconomico"
+            name="estratoSocioeconomico"
+            [(ngModel)]="cliente.estratoSocioeconomico"
+            #estratoSocioeconomico="ngModel"
+            required
+            [class.ng-invalid]="campoInvalido(estratoSocioeconomico)" />
+          <small class="mensaje-campo" *ngIf="campoInvalido(estratoSocioeconomico)">
+            Campo obligatorio.
+          </small>
+        </div>
+
+        <div class="campo">
+          <label for="ingresosMensuales">Ingresos mensuales *</label>
+          <input
+            pInputText
+            id="ingresosMensuales"
+            name="ingresosMensuales"
+            [(ngModel)]="cliente.ingresosMensuales"
+            #ingresosMensuales="ngModel"
+            required
+            [class.ng-invalid]="campoInvalido(ingresosMensuales)" />
+          <small class="mensaje-campo" *ngIf="campoInvalido(ingresosMensuales)">
+            Campo obligatorio.
+          </small>
+        </div>
+
+        <div class="campo">
+          <label for="ocupacion">Ocupación *</label>
+          <input
+            pInputText
+            id="ocupacion"
+            name="ocupacion"
+            [(ngModel)]="cliente.ocupacion"
+            #ocupacion="ngModel"
+            required
+            [class.ng-invalid]="campoInvalido(ocupacion)" />
+          <small class="mensaje-campo" *ngIf="campoInvalido(ocupacion)">
+            La ocupación es obligatoria.
+          </small>
+        </div>
+
+        <div class="campo">
+          <label for="indicadorPoblacionVulnerable">¿Población vulnerable?</label>
+          <p-select
+            inputId="indicadorPoblacionVulnerable"
+            name="indicadorPoblacionVulnerable"
+            [options]="poblacionVulnerableOptions"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="cliente.indicadorPoblacionVulnerable">
+          </p-select>
+        </div>
+
+        <div class="campo full-width">
+          <label for="tipoPoblacionVulnerable">Tipo de población vulnerable</label>
+          <input
+            pInputText
+            id="tipoPoblacionVulnerable"
+            name="tipoPoblacionVulnerable"
+            [(ngModel)]="cliente.tipoPoblacionVulnerable" />
+        </div>
+      </div>
+    </section>
+
+    <section class="section-box">
+      <div class="section-title">Estado y autorización</div>
+
+      <div class="grid-form">
+        <div class="campo">
+          <label for="estadoUsuario">Estado del usuario *</label>
+          <p-select
+            inputId="estadoUsuario"
+            name="estadoUsuario"
+            [options]="estadoUsuarioOptions"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="cliente.estadoUsuario"
+            #estadoUsuario="ngModel"
+            required
+            [class.ng-invalid]="campoInvalido(estadoUsuario)">
+          </p-select>
+          <small class="mensaje-campo" *ngIf="campoInvalido(estadoUsuario)">
+            Debes seleccionar un estado.
+          </small>
+        </div>
+      </div>
+
+      <div class="checkbox-block">
+        <p-checkbox
+          inputId="aceptaHabeasData"
+          name="aceptaHabeasData"
+          [(ngModel)]="cliente.aceptaHabeasData"
+          [binary]="true">
+        </p-checkbox>
+        <label for="aceptaHabeasData">Acepta Habeas Data *</label>
+      </div>
+
+      <small class="mensaje-campo" *ngIf="!cliente.aceptaHabeasData && enviado">
+        Debes aceptar Habeas Data.
+      </small>
+    </section>
+
+    <div class="acciones-footer">
+      <button
+        pButton
+        type="submit"
+        label="Guardar"
+        icon="pi pi-save"
+        [loading]="cargando"
+        [disabled]="formulario.invalid || !cliente.aceptaHabeasData">
+      </button>
+
+      <button
+        pButton
+        type="button"
+        label="Limpiar"
+        icon="pi pi-refresh"
+        severity="secondary"
+        (click)="limpiarFormulario(formulario)">
+      </button>
+    </div>
+  </form>
+</div>
