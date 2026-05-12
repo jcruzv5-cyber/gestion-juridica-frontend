@@ -1,22 +1,26 @@
-<div>
+<div style="padding: 20px; max-width: 700px; margin: 0 auto;">
   <h2>{{ editandoId ? 'Editar Pago' : 'Registrar Pago' }}</h2>
 
-  <div *ngIf="mensaje" style="color: green;">{{ mensaje }}</div>
-  <div *ngIf="error" style="color: red;">{{ error }}</div>
+  @if (mensaje) {
+    <p style="color: green;">{{ mensaje }}</p>
+  }
+  @if (error) {
+    <p style="color: red;">{{ error }}</p>
+  }
 
   <form (ngSubmit)="editandoId ? guardarEdicion() : registrar()">
     <div>
       <label>Caso ID *</label><br>
       <input type="number" [(ngModel)]="pago.casoId" name="casoId" required placeholder="ID del caso" />
-    </div>
+    </div><br>
     <div>
       <label>Valor *</label><br>
       <input type="number" step="0.01" min="0.01" [(ngModel)]="pago.valor" name="valor" required placeholder="0.00" />
-    </div>
+    </div><br>
     <div>
       <label>Fecha *</label><br>
       <input type="date" [(ngModel)]="pago.fecha" name="fecha" required />
-    </div>
+    </div><br>
     <div>
       <label>Método de pago *</label><br>
       <select [(ngModel)]="pago.metodoPago" name="metodoPago" required>
@@ -26,59 +30,66 @@
         <option value="Tarjeta">Tarjeta</option>
         <option value="Cheque">Cheque</option>
       </select>
-    </div>
+    </div><br>
     <div>
       <label>Observaciones</label><br>
       <textarea [(ngModel)]="pago.observaciones" name="observaciones" placeholder="Observaciones opcionales"></textarea>
-    </div>
+    </div><br>
     <div>
       <label>Comprobante</label><br>
       <input type="text" [(ngModel)]="pago.comprobante" name="comprobante" placeholder="Número o URL del comprobante" />
-    </div>
-    <br>
+    </div><br>
     <button type="submit">{{ editandoId ? 'Guardar cambios' : 'Registrar pago' }}</button>
-    <button type="button" *ngIf="editandoId" (click)="cancelarEdicion()">Cancelar</button>
+    @if (editandoId) {
+      <button type="button" (click)="cancelarEdicion()" style="margin-left: 8px;">Cancelar</button>
+    }
   </form>
 
   <hr>
 
   <h2>Historial de pagos por caso</h2>
   <div>
-    <input type="number" [(ngModel)]="buscarCasoId" placeholder="ID del caso" />
-    <button type="button" (click)="buscarPorCaso()">Buscar</button>
+    <input type="number" [(ngModel)]="buscarCasoId" name="buscarCasoId" placeholder="ID del caso" />
+    <button type="button" (click)="buscarPorCaso()" style="margin-left: 8px;">Buscar</button>
   </div>
 
-  <table *ngIf="pagos.length > 0" border="1" style="margin-top: 12px; border-collapse: collapse;">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Caso</th>
-        <th>Valor</th>
-        <th>Fecha</th>
-        <th>Método</th>
-        <th>Observaciones</th>
-        <th>Comprobante</th>
-        <th>Registrado</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let p of pagos">
-        <td>{{ p.id }}</td>
-        <td>{{ p.casoId }}</td>
-        <td>{{ p.valor | number:'1.2-2' }}</td>
-        <td>{{ p.fecha }}</td>
-        <td>{{ p.metodoPago }}</td>
-        <td>{{ p.observaciones }}</td>
-        <td>{{ p.comprobante }}</td>
-        <td>{{ p.fechaCreacion }}</td>
-        <td>
-          <button (click)="editar(p)">Editar</button>
-          <button (click)="eliminar(p.id!)">Eliminar</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  @if (pagos.length > 0) {
+    <table border="1" style="margin-top: 12px; border-collapse: collapse; width: 100%;">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Caso</th>
+          <th>Valor</th>
+          <th>Fecha</th>
+          <th>Método</th>
+          <th>Observaciones</th>
+          <th>Comprobante</th>
+          <th>Registrado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (p of pagos; track p.id) {
+          <tr>
+            <td>{{ p.id }}</td>
+            <td>{{ p.casoId }}</td>
+            <td>{{ p.valor }}</td>
+            <td>{{ p.fecha }}</td>
+            <td>{{ p.metodoPago }}</td>
+            <td>{{ p.observaciones }}</td>
+            <td>{{ p.comprobante }}</td>
+            <td>{{ p.fechaCreacion }}</td>
+            <td>
+              <button (click)="editar(p)">Editar</button>
+              <button (click)="eliminar(p.id!)" style="margin-left: 4px;">Eliminar</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
 
-  <p *ngIf="pagos.length === 0 && buscarCasoId">No hay pagos registrados para este caso.</p>
+  @if (pagos.length === 0 && buscarCasoId) {
+    <p>No hay pagos registrados para este caso.</p>
+  }
 </div>
