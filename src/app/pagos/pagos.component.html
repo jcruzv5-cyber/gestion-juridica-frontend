@@ -1,95 +1,173 @@
-<div style="padding: 20px; max-width: 700px; margin: 0 auto;">
-  <h2>{{ editandoId ? 'Editar Pago' : 'Registrar Pago' }}</h2>
+<div class="pagos-container">
 
-  @if (mensaje) {
-    <p style="color: green;">{{ mensaje }}</p>
-  }
-  @if (error) {
-    <p style="color: red;">{{ error }}</p>
-  }
-
-  <form (ngSubmit)="editandoId ? guardarEdicion() : registrar()">
-    <div>
-      <label>Caso ID *</label><br>
-      <input type="number" [(ngModel)]="pago.casoId" name="casoId" required placeholder="ID del caso" />
-    </div><br>
-    <div>
-      <label>Valor *</label><br>
-      <input type="number" step="0.01" min="0.01" [(ngModel)]="pago.valor" name="valor" required placeholder="0.00" />
-    </div><br>
-    <div>
-      <label>Fecha *</label><br>
-      <input type="date" [(ngModel)]="pago.fecha" name="fecha" required />
-    </div><br>
-    <div>
-      <label>Método de pago *</label><br>
-      <select [(ngModel)]="pago.metodoPago" name="metodoPago" required>
-        <option value="">-- Seleccione --</option>
-        <option value="Efectivo">Efectivo</option>
-        <option value="Transferencia">Transferencia</option>
-        <option value="Tarjeta">Tarjeta</option>
-        <option value="Cheque">Cheque</option>
-      </select>
-    </div><br>
-    <div>
-      <label>Observaciones</label><br>
-      <textarea [(ngModel)]="pago.observaciones" name="observaciones" placeholder="Observaciones opcionales"></textarea>
-    </div><br>
-    <div>
-      <label>Comprobante</label><br>
-      <input type="text" [(ngModel)]="pago.comprobante" name="comprobante" placeholder="Número o URL del comprobante" />
-    </div><br>
-    <button type="submit">{{ editandoId ? 'Guardar cambios' : 'Registrar pago' }}</button>
-    @if (editandoId) {
-      <button type="button" (click)="cancelarEdicion()" style="margin-left: 8px;">Cancelar</button>
-    }
-  </form>
-
-  <hr>
-
-  <h2>Historial de pagos por caso</h2>
-  <div>
-    <input type="number" [(ngModel)]="buscarCasoId" name="buscarCasoId" placeholder="ID del caso" />
-    <button type="button" (click)="buscarPorCaso()" style="margin-left: 8px;">Buscar</button>
+  <!-- ENCABEZADO -->
+  <div class="page-header">
+    <h1>💳 Gestión de Pagos</h1>
+    <p class="subtitle">Registra y administra los pagos asociados a los casos jurídicos</p>
   </div>
 
-  @if (pagos.length > 0) {
-    <table border="1" style="margin-top: 12px; border-collapse: collapse; width: 100%;">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Caso</th>
-          <th>Valor</th>
-          <th>Fecha</th>
-          <th>Método</th>
-          <th>Observaciones</th>
-          <th>Comprobante</th>
-          <th>Registrado</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (p of pagos; track p.id) {
-          <tr>
-            <td>{{ p.id }}</td>
-            <td>{{ p.casoId }}</td>
-            <td>{{ p.valor }}</td>
-            <td>{{ p.fecha }}</td>
-            <td>{{ p.metodoPago }}</td>
-            <td>{{ p.observaciones }}</td>
-            <td>{{ p.comprobante }}</td>
-            <td>{{ p.fechaCreacion }}</td>
-            <td>
-              <button (click)="editar(p)">Editar</button>
-              <button (click)="eliminar(p.id!)" style="margin-left: 4px;">Eliminar</button>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
+  <!-- ALERTAS -->
+  @if (mensaje) {
+    <div class="alerta alerta-exito">{{ mensaje }}</div>
+  }
+  @if (error) {
+    <div class="alerta alerta-error">{{ error }}</div>
   }
 
-  @if (pagos.length === 0 && buscarCasoId) {
-    <p>No hay pagos registrados para este caso.</p>
-  }
+  <!-- FORMULARIO -->
+  <div class="card">
+    <div class="card-header">
+      <h2>{{ editandoId ? '✏️ Editar Pago #' + editandoId : '➕ Registrar Nuevo Pago' }}</h2>
+    </div>
+    <div class="card-body">
+      <form #form="ngForm" (ngSubmit)="editandoId ? guardarEdicion(form) : registrar(form)" novalidate>
+        <div class="form-grid">
+
+          <!-- Caso ID -->
+          <div class="form-group">
+            <label class="form-label">Caso ID <span class="requerido">*</span></label>
+            <input type="number" class="form-input" [class.input-error]="casoIdCtrl.invalid && casoIdCtrl.touched"
+              [(ngModel)]="pago.casoId" name="casoId" #casoIdCtrl="ngModel" required min="1"
+              placeholder="Ej: 101" />
+            @if (casoIdCtrl.invalid && casoIdCtrl.touched) {
+              <span class="error-msg">El ID del caso es requerido</span>
+            }
+          </div>
+
+          <!-- Valor -->
+          <div class="form-group">
+            <label class="form-label">Valor <span class="requerido">*</span></label>
+            <input type="number" class="form-input" [class.input-error]="valorCtrl.invalid && valorCtrl.touched"
+              [(ngModel)]="pago.valor" name="valor" #valorCtrl="ngModel" required min="0.01" step="0.01"
+              placeholder="Ej: 150000.00" />
+            @if (valorCtrl.invalid && valorCtrl.touched) {
+              <span class="error-msg">Ingrese un valor mayor a $0</span>
+            }
+          </div>
+
+          <!-- Fecha -->
+          <div class="form-group">
+            <label class="form-label">Fecha <span class="requerido">*</span></label>
+            <input type="date" class="form-input" [class.input-error]="fechaCtrl.invalid && fechaCtrl.touched"
+              [(ngModel)]="pago.fecha" name="fecha" #fechaCtrl="ngModel" required />
+            @if (fechaCtrl.invalid && fechaCtrl.touched) {
+              <span class="error-msg">La fecha es requerida</span>
+            }
+          </div>
+
+          <!-- Método de pago -->
+          <div class="form-group">
+            <label class="form-label">Método de pago <span class="requerido">*</span></label>
+            <select class="form-input" [class.input-error]="metodoCtrl.invalid && metodoCtrl.touched"
+              [(ngModel)]="pago.metodoPago" name="metodoPago" #metodoCtrl="ngModel" required>
+              <option value="">-- Seleccione --</option>
+              <option value="Efectivo">💵 Efectivo</option>
+              <option value="Transferencia">🏦 Transferencia</option>
+              <option value="Tarjeta">💳 Tarjeta</option>
+              <option value="Cheque">📄 Cheque</option>
+            </select>
+            @if (metodoCtrl.invalid && metodoCtrl.touched) {
+              <span class="error-msg">Seleccione un método de pago</span>
+            }
+          </div>
+
+          <!-- Comprobante -->
+          <div class="form-group">
+            <label class="form-label">Comprobante</label>
+            <input type="text" class="form-input" [(ngModel)]="pago.comprobante" name="comprobante"
+              placeholder="Número o referencia del comprobante" />
+          </div>
+
+          <!-- Observaciones -->
+          <div class="form-group form-group-full">
+            <label class="form-label">Observaciones</label>
+            <textarea class="form-input form-textarea" [(ngModel)]="pago.observaciones" name="observaciones"
+              placeholder="Notas adicionales sobre el pago..." rows="3"></textarea>
+          </div>
+
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="cargando">
+            {{ cargando ? 'Procesando...' : (editandoId ? 'Guardar cambios' : 'Registrar pago') }}
+          </button>
+          @if (editandoId) {
+            <button type="button" class="btn btn-secondary" (click)="cancelarEdicion(form)">Cancelar</button>
+          }
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- HISTORIAL -->
+  <div class="card">
+    <div class="card-header">
+      <h2>📋 Historial de Pagos por Caso</h2>
+    </div>
+    <div class="card-body">
+      <div class="buscar-row">
+        <input type="number" class="form-input buscar-input" [(ngModel)]="buscarCasoId"
+          name="buscarCasoId" placeholder="Ingresa el ID del caso" />
+        <button class="btn btn-primary" (click)="buscarPorCaso()" [disabled]="!buscarCasoId || cargando">
+          🔍 Buscar
+        </button>
+      </div>
+
+      @if (pagos.length > 0) {
+        <div class="tabla-wrapper">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Caso</th>
+                <th>Valor</th>
+                <th>Fecha</th>
+                <th>Método</th>
+                <th>Comprobante</th>
+                <th>Observaciones</th>
+                <th>Registrado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of pagos; track p.id) {
+                <tr [class.fila-editando]="editandoId === p.id">
+                  <td><span class="badge">{{ p.id }}</span></td>
+                  <td>{{ p.casoId }}</td>
+                  <td class="valor-celda">${{ p.valor?.toLocaleString('es-CO') }}</td>
+                  <td>{{ p.fecha }}</td>
+                  <td>
+                    <span class="metodo-badge metodo-{{ p.metodoPago?.toLowerCase() }}">
+                      {{ p.metodoPago }}
+                    </span>
+                  </td>
+                  <td>{{ p.comprobante || '—' }}</td>
+                  <td class="obs-celda">{{ p.observaciones || '—' }}</td>
+                  <td>{{ p.fechaCreacion || '—' }}</td>
+                  <td class="acciones-celda">
+                    <button class="btn-icon btn-edit" (click)="editar(p)" title="Editar">✏️</button>
+                    <button class="btn-icon btn-delete" (click)="eliminar(p.id!, p.casoId)" title="Eliminar">🗑️</button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="2" class="total-label">Total pagos: {{ pagos.length }}</td>
+                <td class="valor-celda total-valor">${{ totalPagos().toLocaleString('es-CO') }}</td>
+                <td colspan="6"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      }
+
+      @if (buscado && pagos.length === 0) {
+        <div class="empty-state">
+          <p>📭 No hay pagos registrados para el caso #{{ buscarCasoId }}</p>
+        </div>
+      }
+    </div>
+  </div>
+
 </div>
